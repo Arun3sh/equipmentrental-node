@@ -30,4 +30,11 @@ router.post('/', cors, async (request, response) => {
 	response.send(result);
 });
 
+router.delete('/:id', async (request, response) => {
+	const { id } = request.params;
+	const products = await client.db('mern').collection('products').deleteOne({ id: id });
+
+	response.send(products);
+});
+
 export const productsRouter = router;

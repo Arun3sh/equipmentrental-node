@@ -1,13 +1,11 @@
+// After updating type as module in package json using new import statements
 import express, { request, response } from 'express';
 import { MongoClient } from 'mongodb';
 import dotenv from 'dotenv';
 import { productsRouter } from './routes/products.js';
+import { usersRouter } from './routes/users.js';
 import cors from 'cors';
 
-// const { response } = require('express');
-// const express = require('express');
-// const { request } = require('http');
-// const {MondoClient} = require("mongodb")
 dotenv.config();
 const app = express();
 app.use(cors());
@@ -30,13 +28,8 @@ app.get('/', (request, response) => {
 	response.send('Hello 🌏 heroku');
 });
 
-// app.post('/products', express.json(), async (request, response) => {
-// 	const data = request.body;
-// 	console.log('incoming', data);
-// 	const result = await client.db('mern').collection('products').insertMany(data);
-
-// 	response.send(result);
-// });
 app.use('/products', productsRouter);
+
+app.use('/users', usersRouter);
 
 app.listen(PORT, () => console.log('Server started', PORT));
