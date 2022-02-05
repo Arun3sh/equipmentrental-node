@@ -28,6 +28,13 @@ app.get('/', (request, response) => {
 	response.send('Hello 🌏 heroku');
 });
 
+// app.post('/products', express.json(), async (request, response) => {
+// 	const data = request.body;
+// 	console.log('incoming', data);
+// 	const result = await client.db('mern').collection('products').insertMany(data);
+
+// 	response.send(result);
+// });
 app.use('/products', productsRouter);
 
 app.listen(PORT, () => console.log('Server started', PORT));
