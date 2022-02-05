@@ -2,6 +2,7 @@ import express, { request, response } from 'express';
 import { addUsers, findUsername, genPassword } from '../helper.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import cors from 'cors';
 
 const router = express.Router();
 
@@ -37,7 +38,7 @@ router.post('/signup', express.json(), async (request, response) => {
 	response.send(result);
 });
 
-router.post('/login', express.json(), async (request, response) => {
+router.post('/login', cors, async (request, response) => {
 	const { username, password } = request.body;
 
 	const checkUsername = await findUsername({ username: username });
