@@ -1,5 +1,6 @@
 import express, { request, response } from 'express';
 import { client } from './../index.js';
+import cors from 'cors';
 
 const router = express.Router();
 
@@ -23,7 +24,7 @@ router.get('/:id', async (request, response) => {
 	response.send(getData);
 });
 
-router.post('/', express.json(), async (request, response) => {
+router.post('/', cors, async (request, response) => {
 	const data = request.body;
 	const result = await client.db('mern').collection('products').insertMany(data);
 	response.send(result);
