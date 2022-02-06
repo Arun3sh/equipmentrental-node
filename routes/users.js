@@ -11,7 +11,7 @@ const router = express.Router();
 
 // app.use(express.json()) -- middleware
 
-router.get('/', cors, async (request, response) => {
+router.get('/', async (request, response) => {
 	const filter = request.query;
 	if (filter.id) {
 		filter.id = +filter.id;
@@ -64,7 +64,7 @@ router.post('/login', async (request, response) => {
 	if (checkPassword) {
 		const token = jwt.sign({ id: checkUsername._id }, process.env.SECRET_KEY);
 		response.send({ token: token });
-		return;
+		// return;
 	} else {
 		// 401 is for unauthorized
 		response.status(401).send('Username/Password incorrect');

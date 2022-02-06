@@ -25,7 +25,7 @@ router.get('/:id', async (request, response) => {
 	response.send(getData);
 });
 
-router.post('/', cors(), async (request, response) => {
+router.post('/', cors, async (request, response) => {
 	const data = request.body;
 	const result = await client.db('mern').collection('products').insertMany(data);
 	response.send(result);
