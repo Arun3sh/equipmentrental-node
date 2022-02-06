@@ -21,7 +21,7 @@ router.get('/', async (request, response) => {
 // Post method to signup the user
 router.post('/signup', cors, async (request, response) => {
 	const { username, password, email } = request.body;
-
+	console.log(username);
 	const checkUsername = await findUsername({ username: username });
 
 	// To check password strength
@@ -50,7 +50,7 @@ router.post('/signup', cors, async (request, response) => {
 
 router.post('/login', cors, async (request, response) => {
 	const { username, password } = request.body;
-
+	console.log(username);
 	const checkUsername = await findUsername({ username: username });
 
 	if (checkUsername === null) {

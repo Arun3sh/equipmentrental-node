@@ -41,10 +41,10 @@ async function findUsername(filter) {
 
 async function genPassword(password) {
 	const salt = await bcrypt.genSalt(10);
-	console.log('salt', salt);
+	// console.log('salt', salt);
 
 	const hashedPassword = await bcrypt.hash(password, salt);
-	console.log(hashedPassword);
+	// console.log(hashedPassword);
 	return hashedPassword;
 }
 
