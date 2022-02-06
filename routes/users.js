@@ -5,6 +5,8 @@ import jwt from 'jsonwebtoken';
 import cors from 'cors';
 import { client } from './../index.js';
 
+const app = express();
+app.use(cors());
 const router = express.Router();
 
 // app.use(express.json()) -- middleware
