@@ -1,6 +1,7 @@
 import express, { request, response } from 'express';
 import { client } from './../index.js';
 import cors from 'cors';
+import { auth } from './auth.js';
 
 const router = express.Router();
 
@@ -30,7 +31,7 @@ router.post('/', cors(), async (request, response) => {
 	response.send(result);
 });
 
-router.delete('/:id', cors, async (request, response) => {
+router.delete('/:id', auth, cors, async (request, response) => {
 	const { id } = request.params;
 	const products = await client.db('mern').collection('products').deleteOne({ id: id });
 
