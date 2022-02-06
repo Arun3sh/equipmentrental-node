@@ -3,13 +3,23 @@ import { addUsers, findUsername, genPassword } from '../helper.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import cors from 'cors';
+import { client } from './../index.js';
 
 const router = express.Router();
 
 // app.use(express.json()) -- middleware
 
+router.get('/', async (request, response) => {
+	const filter = request.query;
+	if (filter.id) {
+		filter.id = +filter.id;
+	}
+	const getData = await client.db('mern').collection('users').find(filter).toArray();
+	response.send(getData);
+});
+
 // Post method to signup the user
-router.post('/signup', express.json(), async (request, response) => {
+router.post('/signup', cors, async (request, response) => {
 	const { username, password, email } = request.body;
 
 	const checkUsername = await findUsername({ username: username });
