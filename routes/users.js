@@ -11,7 +11,7 @@ const router = express.Router();
 
 // app.use(express.json()) -- middleware
 
-router.get('/', async (request, response) => {
+router.get('/', cors, async (request, response) => {
 	const filter = request.query;
 	if (filter.id) {
 		filter.id = +filter.id;
@@ -21,7 +21,7 @@ router.get('/', async (request, response) => {
 });
 
 // Post method to signup the user
-router.post('/signup', async (request, response) => {
+router.post('/signup', cors, async (request, response) => {
 	const { username, password, email } = request.body;
 	console.log(username);
 	const checkUsername = await findUsername({ username: username });
@@ -50,7 +50,7 @@ router.post('/signup', async (request, response) => {
 	response.send(result);
 });
 
-router.post('/login', async (request, response) => {
+router.post('/login', cors, async (request, response) => {
 	const { username, password } = request.body;
 	console.log(username);
 	const checkUsername = await findUsername({ username: username });
