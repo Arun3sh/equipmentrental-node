@@ -4,6 +4,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import cors from 'cors';
 import { client } from './../index.js';
+import { auth } from './auth.js';
 
 const router = express.Router();
 
@@ -19,7 +20,7 @@ router.get('/', async (request, response) => {
 });
 
 // Post method to signup the user
-router.post('/signup', cors(), async (request, response) => {
+router.post('/signup', auth, cors(), async (request, response) => {
 	const { username, password, email } = request.body;
 	console.log(username);
 	const checkUsername = await findUsername({ username: username });
@@ -48,7 +49,7 @@ router.post('/signup', cors(), async (request, response) => {
 	response.send(result);
 });
 
-router.post('/login', cors(), async (request, response) => {
+router.post('/login', auth, cors(), async (request, response) => {
 	const { username, password } = request.body;
 	console.log(username);
 	const checkUsername = await findUsername({ username: username });
@@ -61,7 +62,7 @@ router.post('/login', cors(), async (request, response) => {
 	const checkPassword = await bcrypt.compare(password, checkUsername.password);
 	if (checkPassword) {
 		const token = jwt.sign({ id: checkUsername._id }, process.env.SECRET_KEY);
-		response.send({ message: 'Logged in', token: token });
+		response.send({ token: token });
 		return;
 	} else {
 		// 401 is for unauthorized
