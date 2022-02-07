@@ -4,14 +4,15 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import cors from 'cors';
 import { client } from './../index.js';
+import { auth } from './auth.js';
 
-const app = express();
-app.use(cors());
+// const app = express();
+// app.use(cors());
 const router = express.Router();
 
 // app.use(express.json()) -- middleware
 
-router.get('/', async (request, response) => {
+router.get('/', auth, async (request, response) => {
 	const filter = request.query;
 	if (filter.id) {
 		filter.id = +filter.id;
@@ -52,7 +53,7 @@ router.post('/signup', async (request, response) => {
 
 router.post('/login', async (request, response) => {
 	const { username, password } = request.body;
-	console.log(username);
+	console.log('username', username);
 	const checkUsername = await findUsername({ username: username });
 
 	if (checkUsername === null) {
@@ -63,7 +64,7 @@ router.post('/login', async (request, response) => {
 	const checkPassword = await bcrypt.compare(password, checkUsername.password);
 	if (checkPassword) {
 		const token = jwt.sign({ id: checkUsername._id }, process.env.SECRET_KEY);
-		response.send({ token: token });
+		response.header('x-auth-token', token).send({ token: token });
 		// return;
 	} else {
 		// 401 is for unauthorized
