@@ -6,10 +6,16 @@ import { auth } from './auth.js';
 const router = express.Router();
 
 router.get('/', async (request, response) => {
-	const filter = request.query;
-	if (filter.id) {
-		filter.id = +filter.id;
+	let filter = request.query;
+
+	try {
+		if (filter.name) {
+			filter = { name: { $regex: `${filter.name}` } };
+		}
+	} catch (err) {
+		console.log(err.message);
 	}
+
 	const getData = await client.db('mern').collection('products').find(filter).toArray();
 	response.send(getData);
 });
