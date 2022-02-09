@@ -1,6 +1,5 @@
 import express, { request, response } from 'express';
 import { client } from './../index.js';
-import cors from 'cors';
 import { auth } from './auth.js';
 
 const router = express.Router();
@@ -9,8 +8,10 @@ router.get('/', async (request, response) => {
 	let filter = request.query;
 
 	try {
-		if (filter.name) {
-			filter = { name: { $regex: `${filter.name}` } };
+		if (filter.name.length >= 4) {
+			filter = { name: { $regex: `${filter.name}`, $options: 'i' } };
+		} else {
+			filter = {};
 		}
 	} catch (err) {
 		console.log(err.message);
@@ -31,13 +32,13 @@ router.get('/:id', async (request, response) => {
 	response.send(getData);
 });
 
-router.post('/', cors, async (request, response) => {
+router.post('/', async (request, response) => {
 	const data = request.body;
 	const result = await client.db('mern').collection('products').insertMany(data);
 	response.send(result);
 });
 
-router.delete('/:id', auth, cors, async (request, response) => {
+router.delete('/:id', auth, async (request, response) => {
 	const { id } = request.params;
 	const products = await client.db('mern').collection('products').deleteOne({ id: id });
 
