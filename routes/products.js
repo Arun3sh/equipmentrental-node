@@ -20,7 +20,12 @@ router.get('/', async (request, response) => {
 		console.log(err.message);
 	}
 
-	const getData = await client.db('mern').collection('products').find(filter).toArray();
+	const getData = await client
+		.db('mern')
+		.collection('products')
+		.find(filter)
+		.sort({ name: 1 })
+		.toArray();
 	response.send(getData);
 });
 
@@ -31,15 +36,27 @@ router.get('/:id', async (request, response) => {
 	const getData = await client
 		.db('mern')
 		.collection('products')
-		.find({ id: +id })
-		.toArray();
+		.findOne({ _id: ObjectId(id) });
+
 	response.send(getData);
 });
 
-// To add product and auth is provided so only valid person can add data
+// To add product, auth is provided so only valid person can add data
 router.post('/add-product', auth, async (request, response) => {
 	const data = request.body;
-	const result = await client.db('mern').collection('products').insertMany(data);
+	console.log(data);
+	const result = await client.db('mern').collection('products').insertMany([data]);
+	response.send(result);
+});
+
+// To edit product, auth is provided so only valid person can add data
+router.put('/edit-product/:id', auth, async (request, response) => {
+	const { id } = request.params;
+	const updatedProduct = request.body;
+	const result = await client
+		.db('mern')
+		.collection('products')
+		.updateOne({ _id: ObjectId(id) }, { $set: updatedProduct });
 	response.send(result);
 });
 
