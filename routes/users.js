@@ -1,10 +1,15 @@
 import express, { request, response } from 'express';
-import { addUsers, findUsername, genPassword } from '../helper.js';
+import {
+	findAllUsers,
+	findUserWithId,
+	findUserEmail,
+	addUsers,
+	genPassword,
+	updateUserOrder,
+} from '../helper.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { client } from './../index.js';
 import { auth } from './auth.js';
-import { ObjectId } from 'mongodb';
 
 const router = express.Router();
 
@@ -13,17 +18,14 @@ router.get('/', auth, async (request, response) => {
 	if (filter.id) {
 		filter.id = +filter.id;
 	}
-	const getData = await client.db('mern').collection('users').find(filter).toArray();
+	const getData = await findAllUsers(filter);
 	response.send(getData);
 });
 
 router.get('/:id', auth, async (request, response) => {
 	const { id } = request.params;
 
-	const getData = await client
-		.db('mern')
-		.collection('users')
-		.findOne({ _id: ObjectId(id) });
+	const getData = await findUserWithId(id);
 
 	response.send(getData);
 });
@@ -32,14 +34,14 @@ router.get('/:id', auth, async (request, response) => {
 router.post('/signup', async (request, response) => {
 	const { username, password, email } = request.body;
 
-	const checkUsername = await findUsername({ email: email });
+	const checkUsername = await findUserEmail({ email: email });
 
 	// To check password strength
 	const passwordTester = new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})');
 	const strength = passwordTester.test(password);
 
 	if (checkUsername) {
-		response.status(400).send('Username already taken');
+		response.status(400).send('User Email exists');
 		return;
 	}
 
@@ -59,13 +61,13 @@ router.post('/signup', async (request, response) => {
 });
 
 router.post('/login', async (request, response) => {
-	const { username, password } = request.body;
+	const { email, password } = request.body;
 
-	const checkUsername = await findUsername({ username: username });
+	const checkUsername = await findUserEmail({ email: email });
 
 	if (checkUsername === null) {
 		// 401 is for unauthorized
-		response.status(401).send('Username / Password incorrect');
+		response.status(401).send('Email / Password incorrect');
 		return;
 	}
 
@@ -77,33 +79,17 @@ router.post('/login', async (request, response) => {
 		response.header('x-auth-token', token).send({ token: token });
 	} else {
 		// 401 is for unauthorized
-		response.status(401).send('Username/Password incorrect');
+		response.status(401).send('Email/Password incorrect');
 		return;
 	}
 });
 
-router.put('/edit-user', async (request, response) => {
+router.put('/user-order', async (request, response) => {
 	const { id } = request.params;
 	const updateOrder = request.body;
-	console.log(updateOrder, id);
-	const exOrder = [
-		{
-			pname: 'VR Headset',
-			from: '2022-01-18T18:30:00.000+00:00',
-			to: '2022-02-17T18:30:00.000+00:00',
-			quantity: 2,
-		},
-		{
-			pname: 'Keyboard',
-			from: '2022-01-18T18:30:00.000+00:00',
-			to: '2022-02-17T18:30:00.000+00:00',
-			quantity: 1,
-		},
-	];
-	const result = await client
-		.db('mern')
-		.collection('users')
-		.updateOne({ id: 101 }, { $push: { orders: updateOrder } });
+	console.log(updateOrder);
+
+	const result = await updateUserOrder(id, updateOrder);
 	response.send(result);
 });
 

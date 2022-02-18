@@ -2,50 +2,42 @@ import { client } from './index.js';
 import bcrypt from 'bcrypt';
 import { ObjectId } from 'mongodb';
 
-// async function searchMovieById(id) {
-// 	return await client
-// 		.db('mern')
-// 		.collection('movies')
-// 		.findOne({ _id: ObjectId(id) });
-// }
+// Find all users
+async function findAllUsers(filter) {
+	return await client.db('mern').collection('users').find(filter).toArray();
+}
 
-// async function updateMovieRatingById(id, updatedMovie) {
-// 	return await client
-// 		.db('mern')
-// 		.collection('movies')
-// 		.updateOne({ _id: ObjectId(id) }, { $set: updatedMovie });
-// }
+// Find one user
+async function findUserWithId(id) {
+	return await client
+		.db('mern')
+		.collection('users')
+		.findOne({ _id: ObjectId(id) });
+}
 
-// async function deleteMovieById(_id) {
-// 	await client
-// 		.db('mern')
-// 		.collection('movies')
-// 		.deleteOne({ _id: ObjectId(id) });
-// }
-
-// async function addMovies(data) {
-// 	return await client.db('mern').collection('movies').insertMany(data);
-// }
-
-// async function findMovies(filter) {
-// 	return await client.db('mern').collection('movies').find(filter).toArray();
-// }
-
+// Add new user
 async function addUsers(data) {
 	return await client.db('mern').collection('users').insertOne(data);
 }
 
-async function findUsername(filter) {
-	return await client.db('mern').collection('users').findOne(filter);
+// Find user email
+async function findUserEmail(filter) {
+	return client.db('mern').collection('users').findOne(filter);
 }
 
 async function genPassword(password) {
 	const salt = await bcrypt.genSalt(10);
-	// console.log('salt', salt);
 
 	const hashedPassword = await bcrypt.hash(password, salt);
-	// console.log(hashedPassword);
+
 	return hashedPassword;
 }
 
-export { addUsers, findUsername, genPassword };
+async function updateUserOrder(id, updateOrder) {
+	return await client
+		.db('mern')
+		.collection('users')
+		.updateOne({ id: id }, { $push: { orders: updateOrder } });
+}
+
+export { findAllUsers, findUserWithId, findUserEmail, addUsers, genPassword, updateUserOrder };
