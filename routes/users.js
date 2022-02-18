@@ -4,6 +4,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { client } from './../index.js';
 import { auth } from './auth.js';
+import { ObjectId } from 'mongodb';
 
 const router = express.Router();
 
@@ -13,6 +14,17 @@ router.get('/', auth, async (request, response) => {
 		filter.id = +filter.id;
 	}
 	const getData = await client.db('mern').collection('users').find(filter).toArray();
+	response.send(getData);
+});
+
+router.get('/:id', auth, async (request, response) => {
+	const { id } = request.params;
+
+	const getData = await client
+		.db('mern')
+		.collection('users')
+		.findOne({ _id: ObjectId(id) });
+
 	response.send(getData);
 });
 
@@ -68,6 +80,31 @@ router.post('/login', async (request, response) => {
 		response.status(401).send('Username/Password incorrect');
 		return;
 	}
+});
+
+router.put('/edit-user', async (request, response) => {
+	const { id } = request.params;
+	const updateOrder = request.body;
+	console.log(updateOrder, id);
+	const exOrder = [
+		{
+			pname: 'VR Headset',
+			from: '2022-01-18T18:30:00.000+00:00',
+			to: '2022-02-17T18:30:00.000+00:00',
+			quantity: 2,
+		},
+		{
+			pname: 'Keyboard',
+			from: '2022-01-18T18:30:00.000+00:00',
+			to: '2022-02-17T18:30:00.000+00:00',
+			quantity: 1,
+		},
+	];
+	const result = await client
+		.db('mern')
+		.collection('users')
+		.updateOne({ id: 101 }, { $push: { orders: updateOrder } });
+	response.send(result);
 });
 
 export const usersRouter = router;
