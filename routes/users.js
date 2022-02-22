@@ -32,7 +32,7 @@ router.get('/:id', auth, async (request, response) => {
 
 // Post method to signup the user
 router.post('/signup', async (request, response) => {
-	const { username, password, email } = request.body;
+	const { username, password, email, orders, cart } = request.body;
 
 	const checkUsername = await findUserEmail({ email: email });
 
@@ -55,7 +55,13 @@ router.post('/signup', async (request, response) => {
 	}
 
 	const hashedPassword = await genPassword(password);
-	const result = await addUsers({ username: username, password: hashedPassword, email: email });
+	const result = await addUsers({
+		username: username,
+		password: hashedPassword,
+		email: email,
+		orders: orders,
+		cart: cart,
+	});
 
 	response.send(result);
 });
@@ -76,7 +82,7 @@ router.post('/login', async (request, response) => {
 	if (checkPassword) {
 		const token = jwt.sign({ id: checkUsername._id }, process.env.SECRET_KEY);
 
-		response.header('x-auth-token', token).send({ token: token });
+		response.header('x-auth-token', token).send({ token: token, id: checkUsername._id });
 	} else {
 		// 401 is for unauthorized
 		response.status(401).send('Email/Password incorrect');
@@ -87,9 +93,15 @@ router.post('/login', async (request, response) => {
 router.put('/user-order', async (request, response) => {
 	const { id } = request.params;
 	const updateOrder = request.body;
-	console.log(updateOrder);
 
 	const result = await updateUserOrder(id, updateOrder);
+	response.send(result);
+});
+
+router.get('/user-order/:id', async (request, response) => {
+	const { id } = request.params;
+
+	const result = await findUserWithId(id);
 	response.send(result);
 });
 

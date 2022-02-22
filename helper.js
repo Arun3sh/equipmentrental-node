@@ -33,6 +33,7 @@ async function genPassword(password) {
 	return hashedPassword;
 }
 
+// To update user order
 async function updateUserOrder(id, updateOrder) {
 	return await client
 		.db('mern')
