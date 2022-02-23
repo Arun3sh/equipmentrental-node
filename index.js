@@ -4,6 +4,7 @@ import { MongoClient } from 'mongodb';
 import dotenv from 'dotenv';
 import { productsRouter } from './routes/products.js';
 import { usersRouter } from './routes/users.js';
+import { paymentRouter } from './routes/payment.js';
 import cors from 'cors';
 
 dotenv.config();
@@ -31,5 +32,7 @@ app.get('/', (request, response) => {
 app.use('/products', productsRouter);
 
 app.use('/users', usersRouter);
+
+app.use('/payment', paymentRouter);
 
 app.listen(PORT, () => console.log('Server started', PORT));
