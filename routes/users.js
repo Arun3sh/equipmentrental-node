@@ -15,9 +15,7 @@ const router = express.Router();
 
 router.get('/', auth, async (request, response) => {
 	const filter = request.query;
-	if (filter.id) {
-		filter.id = +filter.id;
-	}
+
 	const getData = await findAllUsers(filter);
 	response.send(getData);
 });
