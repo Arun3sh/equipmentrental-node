@@ -1,57 +1,62 @@
 import express, { request, response } from 'express';
-import pkg from 'razorpay';
+import Razorpay from 'razorpay';
 import { auth } from './auth.js';
+import crypto from 'crypto';
 
 const router = express.Router();
-const { Razorpay } = pkg;
 
 // For creating order
 router.post('/order', auth, async (request, response) => {
 	try {
-		const instance = new Razorpay({
-			key_id: process.env.RAZORPAY_KEY_ID,
+		const { amount, currency } = request.body;
+		const myinstance = new Razorpay({
+			key_id: `${process.env.RAZORPAY_KEY_ID}`,
 			key_secret: process.env.RAZORPAY_SECRET,
 		});
 
 		const options = {
-			amount: 50000, // amount in smallest currency unit
-			currency: 'INR',
-			receipt: 'receipt_order_74394',
+			amount: amount * 100, // amount in smallest currency unit
+			currency: currency,
 		};
 
-		const order = await instance.orders.create(options);
-
-		if (!order) return res.status(500).send('Some error occured');
-
-		res.json(order);
+		myinstance.orders.create(options, (err, order) => {
+			if (!err) {
+				response.json(order);
+			} else {
+				response.send(err);
+			}
+		});
 	} catch (error) {
-		res.status(500).send(error);
+		response.status(500).send(error);
 	}
 });
 
 router.post('/success', auth, async (req, res) => {
 	try {
 		// getting the details back from our font-end
-		const { orderCreationId, razorpayPaymentId, razorpayOrderId, razorpaySignature } = req.body;
+		const { orderCreationId, razorpayPaymentId, razorpayOrderId } = req.body;
+		const razorpay_signature = req.headers['x-razorpay-signature'];
 
 		// Creating our own digest
 		// The format should be like this:
 		// digest = hmac_sha256(orderCreationId + "|" + razorpayPaymentId, secret);
-		const shasum = crypto.createHmac('sha256', 'w2lBtgmeuDUfnJVp43UpcaiT');
 
-		shasum.update(`${orderCreationId}|${razorpayPaymentId}`);
+		const hmac = crypto.createHmac('sha256', process.env.RAZORPAY_SECRET);
 
-		const digest = shasum.digest('hex');
+		hmac.update(`${orderCreationId}|${razorpayPaymentId}`);
+
+		const digested = hmac.digest('hex');
 
 		// comaparing our digest with the actual signature
-		if (digest !== razorpaySignature)
+		if (digested !== razorpay_signature) {
 			return res.status(400).json({ msg: 'Transaction not legit!' });
+		}
 
 		// THE PAYMENT IS LEGIT & VERIFIED
 		// YOU CAN SAVE THE DETAILS IN YOUR DATABASE IF YOU WANT
 
 		res.json({
-			msg: 'success',
+			msg: 'Payment Received Successfully',
 			orderId: razorpayOrderId,
 			paymentId: razorpayPaymentId,
 		});
