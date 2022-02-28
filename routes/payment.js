@@ -20,8 +20,7 @@ router.post('/order', auth, async (request, response) => {
 			currency: currency,
 		};
 
-		myinstance.orders.create(options, (err, order) => {
-			console.log(err, 'error');
+		await myinstance.orders.create(options, (err, order) => {
 			if (!err) {
 				response.json(order);
 			} else {
