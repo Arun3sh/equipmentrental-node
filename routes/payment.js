@@ -21,14 +21,15 @@ router.post('/order', auth, async (request, response) => {
 		};
 
 		myinstance.orders.create(options, (err, order) => {
+			console.log(err, 'error');
 			if (!err) {
 				response.json(order);
 			} else {
-				response.send(err);
+				response.send({ error: err });
 			}
 		});
 	} catch (error) {
-		response.status(500).send(error);
+		response.status(500).send({ error: error });
 	}
 });
 
