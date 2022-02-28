@@ -88,11 +88,12 @@ router.post('/login', async (request, response) => {
 	}
 });
 
-router.put('/user-order', async (request, response) => {
+router.put('/user-order/:id', auth, async (request, response) => {
 	const { id } = request.params;
 	const updateOrder = request.body;
 
 	const result = await updateUserOrder(id, updateOrder);
+
 	response.send(result);
 });
 

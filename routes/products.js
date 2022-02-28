@@ -1,7 +1,12 @@
 import express, { request, response } from 'express';
-import { client } from './../index.js';
 import { auth } from './auth.js';
-import { ObjectId } from 'mongodb';
+import {
+	getAllProducts,
+	getProductById,
+	addProduct,
+	editProduct,
+	deleteProduct,
+} from '../helper.js';
 
 const router = express.Router();
 
@@ -20,12 +25,7 @@ router.get('/', async (request, response) => {
 		console.log(err.message);
 	}
 
-	const getData = await client
-		.db('mern')
-		.collection('products')
-		.find(filter)
-		.sort({ name: 1 })
-		.toArray();
+	const getData = await getAllProducts(filter);
 	response.send(getData);
 });
 
@@ -33,10 +33,7 @@ router.get('/', async (request, response) => {
 router.get('/:id', async (request, response) => {
 	const { id } = request.params;
 
-	const getData = await client
-		.db('mern')
-		.collection('products')
-		.findOne({ _id: ObjectId(id) });
+	const getData = await getProductById(id);
 
 	response.send(getData);
 });
@@ -44,28 +41,23 @@ router.get('/:id', async (request, response) => {
 // To add product, auth is provided so only valid person can add data
 router.post('/add-product', auth, async (request, response) => {
 	const data = request.body;
-	console.log(data);
-	const result = await client.db('mern').collection('products').insertMany([data]);
+
+	const result = await addProduct(data);
 	response.send(result);
 });
 
-// To edit product, auth is provided so only valid person can add data
+// To edit product, auth is provided so only valid person can edit data
 router.put('/edit-product/:id', auth, async (request, response) => {
 	const { id } = request.params;
 	const updatedProduct = request.body;
-	const result = await client
-		.db('mern')
-		.collection('products')
-		.updateOne({ _id: ObjectId(id) }, { $set: updatedProduct });
+	const result = await editProduct(id, updatedProduct);
 	response.send(result);
 });
 
+// To edit product, auth is provided so only valid person can delete data
 router.delete('/:id', auth, async (request, response) => {
 	const { id } = request.params;
-	const products = await client
-		.db('mern')
-		.collection('products')
-		.deleteOne({ _id: ObjectId(id) });
+	const products = await deleteProduct(id);
 
 	response.send(products);
 });
