@@ -2,6 +2,7 @@ import express, { request, response } from 'express';
 import Razorpay from 'razorpay';
 import { auth } from './auth.js';
 import crypto from 'crypto';
+import { updateUserOrder } from '../helper.js';
 
 const router = express.Router();
 
@@ -10,7 +11,7 @@ router.post('/order', auth, async (request, response) => {
 	try {
 		const { amount, currency } = request.body;
 		const myinstance = new Razorpay({
-			key_id: `${process.env.RAZORPAY_KEY_ID}`,
+			key_id: process.env.RAZORPAY_KEY_ID,
 			key_secret: process.env.RAZORPAY_SECRET,
 		});
 
@@ -34,7 +35,7 @@ router.post('/order', auth, async (request, response) => {
 router.post('/success', auth, async (req, res) => {
 	try {
 		// getting the details back from our font-end
-		const { orderCreationId, razorpayPaymentId, razorpayOrderId } = req.body;
+		const { orderCreationId, razorpayPaymentId, razorpayOrderId, userCart, userId } = req.body;
 		const razorpay_signature = req.headers['x-razorpay-signature'];
 
 		// Creating our own digest
@@ -52,16 +53,16 @@ router.post('/success', auth, async (req, res) => {
 			return res.status(400).json({ msg: 'Transaction not legit!' });
 		}
 
-		// THE PAYMENT IS LEGIT & VERIFIED
-		// YOU CAN SAVE THE DETAILS IN YOUR DATABASE IF YOU WANT
+		const result = await updateUserOrder(userId, userCart);
 
 		res.json({
 			msg: 'Payment Received Successfully',
 			orderId: razorpayOrderId,
 			paymentId: razorpayPaymentId,
+			result: result,
 		});
 	} catch (error) {
-		res.status(500).send(error);
+		res.status(500).json({ error: error });
 	}
 });
 
