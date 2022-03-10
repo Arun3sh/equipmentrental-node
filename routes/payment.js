@@ -18,6 +18,7 @@ router.post('/order', auth, async (request, response) => {
 		const options = {
 			amount: amount * 100, // amount in smallest currency unit
 			currency: currency,
+			payment_capture: '1',
 		};
 
 		await myinstance.orders.create(options, (err, order) => {
