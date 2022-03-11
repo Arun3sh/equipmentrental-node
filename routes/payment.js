@@ -8,21 +8,26 @@ const router = express.Router();
 
 // For creating order
 router.post('/order', auth, async (request, response) => {
-	const { amount, currency } = request.body;
-	const myinstance = new Razorpay({
-		key_id: process.env.RAZORPAY_KEY_ID,
-		key_secret: process.env.RAZORPAY_SECRET,
-	});
-	console.log(amount);
-	const options = {
-		amount: amount * 100, // amount in smallest currency unit
-		currency: currency,
-	};
 	try {
-		await myinstance.orders.create(options).then(async (order) => {
-			console.log(order ? 'yes' : 'no');
-			order ? response.send(order) : response.status(400).send({ error: 'error' });
+		const { amount, currency } = request.body;
+		const myinstance = new Razorpay({
+			key_id: process.env.RAZORPAY_KEY_ID,
+			key_secret: process.env.RAZORPAY_SECRET,
 		});
+		console.log(amount);
+		const options = {
+			amount: amount * 100, // amount in smallest currency unit
+			currency: currency,
+		};
+
+		try {
+			await myinstance.orders.create(options).then(async (order) => {
+				console.log(order ? 'yes' : 'no');
+				order ? response.send(order) : response.status(400).send({ error: 'error' });
+			});
+		} catch (err) {
+			response.status(401).send({ error: err });
+		}
 	} catch (err) {
 		response.status(500).send({ error: err });
 	}
