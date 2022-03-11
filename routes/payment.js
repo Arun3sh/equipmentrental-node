@@ -16,10 +16,10 @@ router.post('/order', auth, async (request, response) => {
 		});
 		console.log(amount);
 		const options = {
-			amount: amount * 1000, // amount in smallest currency unit
+			amount: amount * 100, // amount in smallest currency unit
 			currency: 'INR',
 			receipt: 'receipt#1',
-			payment_capture: 0, //1
+			payment_capture: 1, //1
 		};
 
 		myinstance.orders.create(options, function (err, order) {
