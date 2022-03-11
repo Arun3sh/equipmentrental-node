@@ -18,17 +18,10 @@ router.post('/order', auth, async (request, response) => {
 		const options = {
 			amount: amount * 100, // amount in smallest currency unit
 			currency: currency,
-			payment_capture: '1',
 		};
 
-		await myinstance.orders.create(options, (err, order) => {
-			if (!err) {
-				console.log(order);
-				response.json(order);
-			} else {
-				console.log(err);
-				response.send({ error: err });
-			}
+		await myinstance.orders.create(options).then(async (order) => {
+			order ? response.send(order) : response.status(400).send({ error: 'error' });
 		});
 	} catch (error) {
 		response.status(500).send({ error: error });
@@ -53,7 +46,7 @@ router.post('/success', auth, async (req, res) => {
 
 		// comaparing our digest with the actual signature
 		if (digested !== razorpay_signature) {
-			return res.status(400).json({ msg: 'Transaction not legit!' });
+			return res.status(400).json({ emsg: 'Transaction not legit!' });
 		}
 
 		const result = await updateUserOrder(userId, userCart);
